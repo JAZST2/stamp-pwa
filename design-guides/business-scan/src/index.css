@@ -1,0 +1,129 @@
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@600;700&family=Space+Mono:wght@400;700&family=Inter:wght@400;500&display=swap');
+@import "tailwindcss";
+@plugin "tailwindcss-animate";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme inline {
+  /* PerklyPastel Color Palette */
+  --color-background: #F7F8FB;
+  --color-foreground: #322D45;
+
+  --color-primary: #322D45; /* Ink */
+  --color-primary-foreground: #FFFFFF;
+
+  --color-secondary: #FFC9A3; /* Peach */
+  --color-secondary-foreground: #322D45;
+
+  --color-accent: #9FE0C7; /* Mint */
+  --color-accent-foreground: #322D45;
+
+  --color-surface: #E4DFF5; /* Lavender */
+  --color-surface-foreground: #322D45;
+
+  --color-card: #FFFFFF;
+  --color-card-foreground: #322D45;
+
+  --color-popover: #FFFFFF;
+  --color-popover-foreground: #322D45;
+
+  --color-muted: #F1F5F9;
+  --color-muted-foreground: #64748B;
+
+  --color-border: #E2E8F0;
+  --color-input: #E2E8F0;
+  --color-ring: #9FE0C7;
+
+  /* Typography */
+  --font-heading: "Sora", sans-serif;
+  --font-body: "Inter", sans-serif;
+  --font-mono: "Space Mono", monospace;
+
+  /* Border Radii (8pt based) */
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 20px;
+  --radius-pill: 999px;
+
+  /* Animations */
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
+
+  @keyframes accordion-down {
+    from { height: 0; }
+    to { height: var(--radix-accordion-content-height); }
+  }
+  @keyframes accordion-up {
+    from { height: var(--radix-accordion-content-height); }
+    to { height: 0; }
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground font-body antialiased;
+    background-color: #F7F8FB;
+    color: #322D45;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading font-semibold;
+  }
+}
+
+@layer utilities {
+  .font-sora {
+    font-family: 'Sora', sans-serif;
+  }
+  .font-mono {
+    font-family: 'Space Mono', monospace;
+  }
+  
+  /* Soft low-opacity shadow as requested */
+  .shadow-soft {
+    box-shadow: 0 4px 12px rgba(50, 45, 69, 0.06);
+  }
+
+  /* Dashed border for empty stamp slots */
+  .border-stamp-dashed {
+    border-style: dashed;
+    border-width: 2px;
+  }
+
+  /* Safe areas for PWA bottom navigation */
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .pt-safe {
+    padding-top: env(safe-area-inset-top);
+  }
+}
+
+/* Broken image fallback behavior */
+img:not([src]), img[src=""] {
+  @apply bg-surface/30 relative min-h-[1em] min-w-[1em] inline-block;
+}
+img:not([src])::after, img[src=""]::after {
+  content: " ";
+  @apply absolute inset-0 bg-muted/20 flex items-center justify-center;
+}
+
+/* Custom Scrollbar for a cleaner mobile look */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-muted-foreground/10 rounded-full;
+}

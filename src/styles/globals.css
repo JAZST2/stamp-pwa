@@ -1,0 +1,82 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Sora:wght@600;700&family=Space+Mono:wght@400;700&display=swap");
+@import "tailwindcss";
+
+@config "../../tailwind.config.ts";
+
+/*
+  Brand HSL tokens (space-separated) for opacity modifiers:
+  e.g. hsl(var(--cloud) / 0.5)
+*/
+:root {
+  --cloud: 225 33% 98%;
+  --ink: 252 21% 22%;
+  --mint-stamp: 157 51% 75%;
+  --peach-reward: 25 100% 82%;
+  --lavender-card: 254 52% 92%;
+  --muted-gray: 254 16% 75%;
+}
+
+@theme inline {
+  --color-cloud: hsl(var(--cloud));
+  --color-ink: hsl(var(--ink));
+  --color-mint-stamp: hsl(var(--mint-stamp));
+  --color-peach-reward: hsl(var(--peach-reward));
+  --color-lavender-card: hsl(var(--lavender-card));
+  --color-muted-gray: hsl(var(--muted-gray));
+
+  --font-sans: var(--font-inter), "Inter", ui-sans-serif, system-ui, sans-serif,
+    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-display: var(--font-sora), "Sora", ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-sora), "Sora", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-space-mono), "Space Mono", ui-monospace, SFMono-Regular,
+    Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: hsl(var(--cloud));
+  color: hsl(var(--ink));
+}
+
+.font-display,
+.font-heading {
+  font-family: var(--font-display);
+}
+
+.font-mono {
+  font-family: var(--font-mono);
+}
+
+@layer components {
+  .perkly-input {
+    width: 100%;
+    min-height: 48px;
+    border: 1px solid #c8c2d9;
+    border-radius: 16px;
+    background: #e4dff5;
+    padding: 0 14px;
+    color: #322d45;
+    font-family: var(--font-sans);
+    font-size: 15px;
+    outline: none;
+    transition:
+      border-color 160ms ease,
+      box-shadow 160ms ease,
+      background 160ms ease;
+  }
+
+  .perkly-input::placeholder {
+    color: #8d879c;
+    opacity: 1;
+  }
+
+  .perkly-input:hover {
+    border-color: #aaa3bd;
+  }
+
+  .perkly-input:focus {
+    border-color: #74cfae;
+    box-shadow: 0 0 0 3px rgb(159 224 199 / 40%);
+    background: #e9e5f7;
+  }
+}
