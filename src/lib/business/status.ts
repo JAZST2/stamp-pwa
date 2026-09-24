@@ -52,10 +52,6 @@ export async function getBusinessStatus(options: {
     value: string | null | undefined;
   }> = [
     { column: "owner_id", value: options.userId },
-    { column: "user_id", value: options.userId },
-    { column: "profile_id", value: options.userId },
-    { column: "created_by", value: options.userId },
-    { column: "contact_email", value: options.userEmail },
   ];
 
   for (const candidate of ownerColumnCandidates) {
@@ -63,24 +59,41 @@ export async function getBusinessStatus(options: {
       continue;
     }
 
-    const { data, error } = await supabase
+    const orderedQuery = supabase
       .from("businesses")
       .select("status")
-      .eq(candidate.column, candidate.value)
       .order("created_at", { ascending: false })
-      .limit(1)
+      .limit(1);
+    const { data: orderedData, error: orderedError } = await orderedQuery
+      .eq(candidate.column, candidate.value)
       .maybeSingle<{ status?: string | null }>();
 
-    if (error) {
-      if (isColumnShapeError(error)) {
+    if (!orderedError) {
+      const status = normalizeBusinessStatus(orderedData?.status);
+      if (status) {
+        return status;
+      }
+    }
+
+    if (orderedError && !isColumnShapeError(orderedError)) {
+      continue;
+    }
+
+    const fallbackQuery = supabase.from("businesses").select("status").limit(1);
+    const { data: fallbackData, error: fallbackError } = await fallbackQuery
+      .eq(candidate.column, candidate.value)
+      .maybeSingle<{ status?: string | null }>();
+
+    if (fallbackError) {
+      if (isColumnShapeError(fallbackError)) {
         continue;
       }
       continue;
     }
 
-    const status = normalizeBusinessStatus(data?.status);
-    if (status) {
-      return status;
+    const fallbackStatus = normalizeBusinessStatus(fallbackData?.status);
+    if (fallbackStatus) {
+      return fallbackStatus;
     }
   }
 

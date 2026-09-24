@@ -32,10 +32,6 @@ export async function resolveBusinessIdForCurrentUser(
     value: string | null | undefined;
   }> = [
     { column: "owner_id", value: options.userId },
-    { column: "user_id", value: options.userId },
-    { column: "profile_id", value: options.userId },
-    { column: "created_by", value: options.userId },
-    { column: "contact_email", value: options.userEmail },
   ];
 
   for (const candidate of ownerColumnCandidates) {
@@ -43,23 +39,45 @@ export async function resolveBusinessIdForCurrentUser(
       continue;
     }
 
-    const { data, error } = await supabase
+    const orderedQuery = supabase
       .from("businesses")
       .select("id, created_at")
-      .eq(candidate.column, candidate.value)
       .order("created_at", { ascending: false })
       .limit(1);
+    const { data: orderedData, error: orderedError } = await orderedQuery.eq(
+      candidate.column,
+      candidate.value,
+    );
 
-    if (error) {
-      if (isColumnShapeError(error)) {
+    if (!orderedError) {
+      const businessId = orderedData?.[0]?.id;
+      if (businessId) {
+        return businessId;
+      }
+    }
+
+    if (orderedError && !isColumnShapeError(orderedError)) {
+      continue;
+    }
+
+    // Some schema variants do not expose created_at. Retry with a minimal
+    // lookup so we can still resolve the tenant business id.
+    const fallbackQuery = supabase.from("businesses").select("id").limit(1);
+    const { data: fallbackData, error: fallbackError } = await fallbackQuery.eq(
+      candidate.column,
+      candidate.value,
+    );
+
+    if (fallbackError) {
+      if (isColumnShapeError(fallbackError)) {
         continue;
       }
       continue;
     }
 
-    const businessId = data?.[0]?.id;
-    if (businessId) {
-      return businessId;
+    const fallbackBusinessId = fallbackData?.[0]?.id;
+    if (fallbackBusinessId) {
+      return fallbackBusinessId;
     }
   }
 

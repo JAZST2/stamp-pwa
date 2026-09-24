@@ -1,11 +1,15 @@
-import { CustomerPlaceholderScreen } from "@/components/customer/customer-placeholder-screen";
+import { redirect } from "next/navigation";
+import { CustomerBrowseScreen } from "@/components/customer/browse";
+import { getCurrentProfile } from "@/lib/auth";
+import { listBrowseBusinesses } from "@/lib/customer/browse-server";
 
-export default function BrowsePage() {
-  return (
-    <CustomerPlaceholderScreen
-      section="Customer"
-      title="Browse"
-      description="Browse businesses and cards placeholder."
-    />
-  );
+export default async function BrowsePage() {
+  const session = await getCurrentProfile();
+  if (!session) {
+    redirect("/");
+  }
+
+  const businesses = await listBrowseBusinesses();
+
+  return <CustomerBrowseScreen businesses={businesses} />;
 }

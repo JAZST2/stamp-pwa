@@ -245,6 +245,31 @@ export function BusinessOnboarding({ initialContactEmail }: BusinessOnboardingPr
       contact_phone: string;
     },
   ) {
+    type BusinessInsertAttempt = {
+      slug: string;
+      tagline: string | null;
+      description: string | null;
+      logo_url: string | null;
+      address_line1: string;
+      address_line2: string | null;
+      city: string;
+      province: string;
+      zip_code: string;
+      country: string;
+      business_name?: string;
+      name?: string;
+      cover_photo_url?: string | null;
+      cover_url?: string | null;
+      contact_email?: string;
+      contact_phone?: string;
+      email?: string;
+      phone?: string;
+      owner_id?: string;
+      user_id?: string;
+      profile_id?: string;
+      created_by?: string;
+    };
+
     const nameVariants = [
       { business_name: businessPayload.business_name },
       { name: businessPayload.business_name },
@@ -296,7 +321,7 @@ export function BusinessOnboarding({ initialContactEmail }: BusinessOnboardingPr
       for (const coverFields of coverVariants) {
         for (const contactFields of contactVariants) {
           for (const ownerFields of ownerVariants) {
-            const payload = {
+            const payload: BusinessInsertAttempt = {
               ...stableFields,
               ...nameFields,
               ...coverFields,
@@ -310,7 +335,10 @@ export function BusinessOnboarding({ initialContactEmail }: BusinessOnboardingPr
             }
             attemptedPayloads.add(payloadSignature);
 
-            const { error } = await supabase.from("businesses").insert(payload);
+            // Intentionally dynamic to support multiple column names while rolling schema changes.
+            const { error } = await supabase
+              .from("businesses")
+              .insert(payload as never);
             if (!error) {
               return { error: null };
             }

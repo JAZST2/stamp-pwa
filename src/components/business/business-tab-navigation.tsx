@@ -54,7 +54,8 @@ const BUSINESS_NAV_ITEMS: BusinessNavItem[] = [
     href: "/biz/settings",
     label: "Settings",
     icon: Settings,
-    isActive: (pathname) => pathname === "/biz/settings",
+    isActive: (pathname) =>
+      pathname === "/biz/settings" || pathname.startsWith("/biz/settings/"),
   },
 ];
 

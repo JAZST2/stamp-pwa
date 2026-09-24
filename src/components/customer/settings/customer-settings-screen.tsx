@@ -1,11 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import type { LucideIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
 import {
   Bell,
   Check,
-  ChevronRight,
   CircleHelp,
   Copy,
   Gift,
@@ -21,9 +20,13 @@ import {
   UserRound,
 } from "lucide-react";
 import { QRCodeCanvas } from "qrcode.react";
-import { cn } from "@/lib/utils";
 import { useLogout } from "@/components/auth/use-logout";
 import { PersonalQrPreviewModal } from "@/components/customer/settings/personal-qr-preview-modal";
+import {
+  SettingsButtonRow,
+  SettingsSection,
+  SettingsToggleRow,
+} from "@/components/settings/settings-primitives";
 import { buildCustomerPassQrPayload } from "@/lib/qr/customer-pass";
 
 type CustomerSettingsScreenProps = {
@@ -31,26 +34,6 @@ type CustomerSettingsScreenProps = {
   email: string;
   personalCode: string;
   phone: string | null;
-};
-
-type SettingsButtonRowProps = {
-  label: string;
-  icon: LucideIcon;
-  value?: string;
-  warning?: boolean;
-  danger?: boolean;
-  border?: boolean;
-  onClick?: () => void;
-  rightLabel?: string;
-  disabled?: boolean;
-};
-
-type SettingsToggleRowProps = {
-  label: string;
-  icon: LucideIcon;
-  checked: boolean;
-  onChange: () => void;
-  border?: boolean;
 };
 
 function getAvatarInitials(fullName: string) {
@@ -67,101 +50,13 @@ function getAvatarInitials(fullName: string) {
   return nameParts.map((part) => part.charAt(0).toUpperCase()).join("");
 }
 
-function Toggle({ checked, label, onChange }: { checked: boolean; label: string; onChange: () => void }) {
-  return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={checked}
-      aria-label={label}
-      onClick={onChange}
-      className={cn(
-        "relative h-7 w-12 shrink-0 rounded-full border transition-colors duration-200",
-        "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#322D45]",
-        checked ? "border-[#83CFB2] bg-[#9FE0C7]" : "border-[#B9B4C9] bg-[#DAD7E4]",
-      )}
-    >
-      <span
-        className={cn(
-          "absolute top-[3px] h-5 w-5 rounded-full bg-white shadow-[0_1px_3px_rgba(50,45,69,0.22)] transition-transform duration-200",
-          checked ? "translate-x-[23px]" : "translate-x-[3px]",
-        )}
-        aria-hidden="true"
-      />
-    </button>
-  );
-}
-
-function SettingsSection({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <section className="mt-6" aria-label={title}>
-      <h2 className="mb-2.5 px-1 font-display text-sm font-semibold">{title}</h2>
-      <div className="overflow-hidden rounded-2xl bg-[#E4DFF5]">{children}</div>
-    </section>
-  );
-}
-
-function SettingsButtonRow({
-  label,
-  icon: Icon,
-  value,
-  warning,
-  danger,
-  border = true,
-  onClick,
-  rightLabel,
-  disabled,
-}: SettingsButtonRowProps) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={disabled}
-      className={cn(
-        "flex min-h-14 w-full items-center gap-3 px-4 text-left transition",
-        "focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-[#322D45]",
-        border && "border-b border-[#B9B4C9]",
-        warning ? "text-[#D18C5B]" : danger ? "text-[#C96868]" : "text-[#322D45]",
-        disabled ? "opacity-70" : "hover:bg-white/25",
-      )}
-    >
-      <Icon
-        className={cn("h-5 w-5", warning || danger ? "text-current" : "text-[#625B79]")}
-        strokeWidth={1.8}
-        aria-hidden="true"
-      />
-      <span className="flex-1 text-sm font-medium">{label}</span>
-      {value ? <span className="text-xs text-[#777186]">{value}</span> : null}
-      {rightLabel ? <span className="text-xs font-semibold">{rightLabel}</span> : null}
-      {!warning && !danger ? (
-        <ChevronRight className="h-5 w-5 text-[#777186]" aria-hidden="true" />
-      ) : null}
-    </button>
-  );
-}
-
-function SettingsToggleRow({
-  label,
-  icon: Icon,
-  checked,
-  onChange,
-  border = true,
-}: SettingsToggleRowProps) {
-  return (
-    <div className={cn("flex min-h-14 items-center gap-3 px-4", border && "border-b border-[#B9B4C9]")}>
-      <Icon className="h-5 w-5 text-[#625B79]" strokeWidth={1.8} aria-hidden="true" />
-      <span className="flex-1 text-sm font-medium">{label}</span>
-      <Toggle checked={checked} label={label} onChange={onChange} />
-    </div>
-  );
-}
-
 export function CustomerSettingsScreen({
   fullName,
   email,
   personalCode,
   phone,
 }: CustomerSettingsScreenProps) {
+  const router = useRouter();
   const { isLoggingOut, logout } = useLogout();
   const [stampAlerts, setStampAlerts] = useState(true);
   const [rewardNotifications, setRewardNotifications] = useState(true);
@@ -229,12 +124,6 @@ export function CustomerSettingsScreen({
             </h2>
             <p className="mt-1 truncate text-[13px] text-[#777186]">{email}</p>
           </div>
-          <button
-            type="button"
-            className="shrink-0 rounded-full border border-[#B9B4C9] bg-transparent px-3.5 py-2 text-xs font-medium text-[#322D45] transition hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#322D45] active:scale-[0.98]"
-          >
-            Edit Profile
-          </button>
         </section>
 
         <section
@@ -314,7 +203,11 @@ export function CustomerSettingsScreen({
         </section>
 
         <SettingsSection title="Account">
-          <SettingsButtonRow label="Edit Profile" icon={UserRound} />
+          <SettingsButtonRow
+            label="Edit Profile"
+            icon={UserRound}
+            onClick={() => router.push("/settings/profile")}
+          />
           <SettingsButtonRow label="Change Password" icon={KeyRound} />
           <SettingsButtonRow
             label="Linked Mobile"

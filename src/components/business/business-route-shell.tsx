@@ -16,12 +16,26 @@ function isFullBleedBusinessRoute(pathname: string): boolean {
   );
 }
 
+function isStandaloneBusinessRoute(pathname: string): boolean {
+  return pathname === "/dashboard" || pathname === "/biz/settings";
+}
+
 export function BusinessRouteShell({ children }: BusinessRouteShellProps) {
   const pathname = usePathname();
   const fullBleed = isFullBleedBusinessRoute(pathname);
+  const standalone = isStandaloneBusinessRoute(pathname);
 
   if (fullBleed) {
     return <div className="min-h-dvh bg-[#F7F8FB] text-[#322D45]">{children}</div>;
+  }
+
+  if (standalone) {
+    return (
+      <div className="min-h-dvh bg-[#F7F8FB] text-[#322D45]">
+        {children}
+        <BusinessTabNavigation />
+      </div>
+    );
   }
 
   return (
